@@ -6,7 +6,7 @@ describe 'w_apache::deploy' do
     it { should be_resolvable.by('hosts') }
     its(:ipaddress) { should eq '9.9.9.9' }
   end
-  
+
   describe file('/var/www/.ssh') do
     it { should be_directory }
     it { should be_mode 700 }
@@ -35,13 +35,12 @@ describe 'w_apache::deploy' do
     it { should be_grouped_into 'www-data' }
     it { should contain ' git.examplewebsite.com ssh-rsa QAAAB3NzaC1yc2EAAAADAQABAAABAQDN5u2/w1xQdJQWD+/omBz4iR8ZUvPiRRgk6O6MYy+vmrPr4w+GyMYfhvDylhW+BIil2mHDaY7XdMrJb1FlUoS4a0WxMbpvqffMlVQoYphtHbtqALCfD6s+KKIcE0nuwYU7gaMRHU9LFxdsjVv2wRGrW79b8u22ySLRdkKu9tSSfketWUP7CMiMELVEr1su5mTeR7j1oQUnoeA6w5fsFRtu5PHMS8i/-jdTwoG4qYWKbmVxqhzso+qG2rix4duJJ8LEN35wCkCO/nbTlXExEZevvjE7hNPmQ5EULLN/jWy2Vuq0blqDKs6eN6+lzMME2iplNIKZdfvXO+e90zdHnJOL ' }
   end
-  
-  describe command('cd /websites/examplewebsite.com && git remote -v') do
+
+  describe command('cd /websites/example.com && git remote -v') do
     its(:stdout) { should contain('git.examplewebsite.com/www.git') }
   end
-  
-  describe command('cd /websites/examplewebsite.com/admin && git remote -v') do
-    its(:stdout) { should contain('git.examplewebsite.com/admin.git') }
+
+  describe command('cd /websites/example2.com && git remote -v') do
+    its(:stdout) { should contain('git.examplewebsite.com/www2.git') }
   end
-  
 end
