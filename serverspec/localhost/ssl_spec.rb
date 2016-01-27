@@ -7,39 +7,29 @@ describe 'w_apache::ssl' do
     it { should contain 'SSLPassPhraseDialog exec:/etc/ssl/passphrase' }
   end
 
-  [
-    {'id'=> 'ssl.example.com', 
-    'cert_file'=> '/etc/ssl/certs/ssl.example.com.crt',  
-    'cert_key_file'=> '/etc/ssl/private/ssl.example.com.key', 
-    'ssl_path'=> '/websites/example.com/ssl', 
-    'ssl_aliases'=> ['ssl2.example.com'] },
-    {'id'=> 'www.newexample.com', 
-    'cert_file'=> '/etc/ssl/certs/www.newexample.com.crt', 
-    'cert_inter_file'=> '/etc/ssl/certs/www.newexample.comCA.crt', 
-    'cert_key_file'=> '/etc/ssl/private/www.newexample.com.key', 
-    'ssl_path'=> '/websites/newexample.com/www', 
-    'ssl_aliases'=> ['newexample.com'] }
-  ].each do |cert_info|
-
-    describe file("/etc/ssl/certs/#{cert_info['id']}.crt") do
+	[
+		{'main_domain'=> 'ssl.example.com', 'docroot'=> '/websites/example.com/ssl', 'aliases'=> ['ssl2.example.com'], 'ssl'=> true }
+	].each do |vhost|
+	
+    describe file("/etc/ssl/certs/#{vhost['main_domain']}.crt") do
       it { should be_file }
     end
   
-    describe file("/etc/ssl/private/#{cert_info['id']}.key") do
+    describe file("/etc/ssl/private/#{vhost['main_domain']}.key") do
       it { should be_file }
     end
 
-    describe file("/etc/apache2/sites-available/#{cert_info['id']}-ssl.conf") do 
+    describe file("/etc/apache2/sites-available/#{vhost['main_domain']}-ssl.conf") do 
       it { should be_file }
       it { should contain('<VirtualHost *:443>') }  
-      it { should contain('AllowOverride All').from("<Directory #{cert_info['ssl_path']}>").to('</Directory>') }
-      it { should contain("ServerName #{cert_info['id']}").before("DocumentRoot /websites/#{cert_info['ssl_path']}>") }
-      it { should contain("ServerAlias #{cert_info['ssl_aliases']}").after("ServerName #{cert_info['id']}") }
-      it { should contain('DirectoryIndex index.html index.htm index.php') }
+	    it { should contain('AllowOverride All').from("<Directory #{vhost['docroot']}>").to('</Directory>') }
+	    it { should contain("ServerName #{vhost['main_domain']}").before("DocumentRoot #{vhost['docroot']}") }
+	    it { should contain("ServerAlias #{vhost['aliases']}").after("ServerName #{vhost['main_domain']}") }
+	    it { should contain('DirectoryIndex index.html index.htm index.php') }
     end
 
-    describe file("/etc/apache2/sites-enabled/#{cert_info['id']}-ssl.conf") do
-      it { should be_linked_to "../sites-available/#{cert_info['id']}-ssl.conf" }
+    describe file("/etc/apache2/sites-enabled/#{vhost['main_domain']}-ssl.conf") do
+      it { should be_linked_to "../sites-available/#{vhost['main_domain']}-ssl.conf" }
     end
     
   end
