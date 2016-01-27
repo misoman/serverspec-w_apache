@@ -9,8 +9,7 @@ describe 'w_apache::ssl' do
 
   [
     {'id'=> 'ssl.example.com', 
-    'cert_file'=> '/etc/ssl/certs/ssl.example.com.crt', 
-    'cert_inter_file'=> '/etc/ssl/certs/ssl.example.comCA.crt', 
+    'cert_file'=> '/etc/ssl/certs/ssl.example.com.crt',  
     'cert_key_file'=> '/etc/ssl/private/ssl.example.com.key', 
     'ssl_path'=> '/websites/example.com/ssl', 
     'ssl_aliases'=> ['ssl2.example.com'] },
@@ -23,10 +22,6 @@ describe 'w_apache::ssl' do
   ].each do |cert_info|
 
     describe file("/etc/ssl/certs/#{cert_info['id']}.crt") do
-      it { should be_file }
-    end
-  
-    describe file("/etc/ssl/certs/#{cert_info['id']}CA.crt") do
       it { should be_file }
     end
   
