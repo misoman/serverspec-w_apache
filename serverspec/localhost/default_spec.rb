@@ -5,21 +5,21 @@ describe 'w_apache::default' do
   describe file('/etc/apt/sources.list.d/multiverse.list') do
     it { should be_file }
   end
-  
+
   describe file('/etc/apt/sources.list.d/updates-multiverse.list') do
     it { should be_file }
   end
-  
+
   describe file('/etc/apt/sources.list.d/security-multiverse-src.list') do
     it { should be_file }
   end
-    
-	['apache2'].each do |package|	
+
+	['apache2', 'mysql-client'].each do |package|
 		describe package("#{package}") do
 	  	it { should be_installed }
 		end
 	end
-	
+
 	describe service('apache2') do
 		it { should be_enabled }
 		it { should be_running }
@@ -39,16 +39,16 @@ describe 'w_apache::default' do
 #      describe package('nfs-common') do
 #        it { should be_installed }
 #      end
-#  
+#
 #      describe user('www-data') do
 #        it { should exist }
 #        it { should have_uid 33 }
 #      end
-#  
+#
 #      describe port(32_765) do
 #        it { should be_listening }
 #      end
-#  
+#
 #      #It should be verified after nfs server is verified
 #      describe 'file should be synced between client & server '\
 #               'with www-data as owner' do
@@ -61,5 +61,5 @@ describe 'w_apache::default' do
 #  else
 #    describe 'nfs client is not installed'
 #  end
-  
+
 end
