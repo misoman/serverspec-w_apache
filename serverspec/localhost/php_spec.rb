@@ -36,7 +36,7 @@ describe 'w_apache::php' do
     its(:content) { should match /request_terminate_timeout(\s)+=(\s)+320/ }
     its(:content) { should match /chdir(\s)+=(\s)+\// }
     its(:content) { should match /security.limit_extensions(\s)+=(\s)+.php .htm .php3 .html .inc .tpl .cfg/ }
-    its(:content) { should match /php_value\[error_log\] (\s)+=(\s)+\/var\/log\/php5-fpm\/php-fpm.log/ }
+    its(:content) { should match /php_value\[error_log\](\s)+=(\s)+\/var\/log\/php5-fpm\/php-fpm.log/ }
   end
 
   describe file('/etc/php5/fpm/php-fpm.conf') do
