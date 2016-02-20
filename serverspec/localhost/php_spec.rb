@@ -17,7 +17,7 @@ describe 'w_apache::php' do
     it { should be_file }
   end
 
-  describe file('/var/run/php-fpm-www.sock') do
+  describe file('/var/run/php5-fpm.sock') do
     it { should be_socket }
   end
 
