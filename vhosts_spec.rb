@@ -27,4 +27,8 @@ RSpec.shared_examples 'w_apache::vhosts' do
 	     it { should be_linked_to "../sites-available/#{vhost['main_domain']}.conf" }
 	   end
 	 end
+
+	describe file('/websites/nodocroot.com') do
+		it { should_not exist }
+	end
 end
