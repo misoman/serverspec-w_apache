@@ -110,11 +110,13 @@ RSpec.shared_examples 'w_apache::php' do
     it { should be_mode 666 }
   end
 
-  describe file("/etc/php/#{php_minor_version}/fpm/php.ini") do
-    it { should be_file }
-    it { should be_owned_by 'root' }
-    it { should be_grouped_into 'root' }
-    it { should be_mode 644 }
+  %w(fpm cli).each do |api|
+    describe file("/etc/php/#{php_minor_version}/#{api}/php.ini") do
+      it { should be_file }
+      it { should be_owned_by 'root' }
+      it { should be_grouped_into 'root' }
+      it { should be_mode 644 }
+    end
   end
 
   describe file("/var/log/php#{php_minor_version}-fpm.log") do
@@ -157,5 +159,85 @@ RSpec.shared_examples 'w_apache::php' do
   describe service("php#{php_minor_version}-fpm") do
     it { should be_enabled }
     it { should be_running }
+  end
+
+  on = 1
+  off = ''
+  off_ = 0
+
+  describe php_config('short_open_tag') do
+    its(:value) { should eq on }
+  end
+
+  describe php_config('safe_mode') do
+    its(:value) { should eq off }
+  end
+
+  describe php_config('display_errors') do
+    its(:value) { should eq off }
+  end
+
+  describe php_config('display_startup_errors') do
+    its(:value) { should eq off }
+  end
+
+  describe php_config('log_errors') do
+    its(:value) { should eq on }
+  end
+
+  describe php_config('report_memleaks') do
+    its(:value) { should eq on }
+  end
+
+  describe php_config('track_errors') do
+    its(:value) { should eq off }
+  end
+
+  describe php_config('html_errors') do
+    its(:value) { should eq off_ }
+  end
+
+  describe php_config('post_max_size') do
+    its(:value) { should eq '32M' }
+  end
+
+  describe php_config('include_path') do
+    its(:value) { should eq '.:/usr/share/php' }
+  end
+
+  describe php_config('file_uploads') do
+    its(:value) { should eq on }
+  end
+
+  describe php_config('upload_tmp_dir') do
+    its(:value) { should eq '/var/lib/php/uploads' }
+  end
+
+  describe php_config('upload_max_filesize') do
+    its(:value) { should eq '32M' }
+  end
+
+  describe php_config('max_file_uploads') do
+    its(:value) { should eq 20 }
+  end
+
+  describe php_config('allow_url_fopen') do
+    its(:value) { should eq on }
+  end
+
+  describe php_config('allow_url_include') do
+    its(:value) { should eq off }
+  end
+
+  describe php_config('default_socket_timeout') do
+    its(:value) { should eq 60 }
+  end
+
+  describe php_config('date.timezone') do
+    its(:value) { should eq 'UTC' }
+  end
+
+  describe php_config('pdo_mysql.cache_size') do
+    its(:value) { should eq 2000 }
   end
 end
