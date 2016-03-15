@@ -36,6 +36,15 @@ RSpec.shared_examples 'w_apache::php' do
     end
   end
 
+  %w(amqp bcmath blackfire bz2 calendar ctype curl dom enchant exif fileinfo ftp gd geoip gettext gmagick gmp iconv igbinary imagick imap interbase intl json ldap mailparse mbstring mcrypt memcached mongodb msgpack mysqli mysqlnd newrelic odbc opcache pdo pdo_dblib pdo_firebird pdo_mysql pdo_odbc pdo_pgsql pdo_sqlite pgsql phar posix pspell radius readline recode redis rrd shmop simplexml smbclient soap sockets sqlite3 ssh2 sysvmsg sysvsem sysvshm tidy tokenizer uuid wddx xml xmlreader xmlrpc xmlwriter xsl yac zip zmq).each do |extension|
+    describe file("/etc/php/#{php_minor_version}/mods-available/#{extension}.ini") do
+      it { should be_file }
+      it { should be_owned_by 'root' }
+      it { should be_grouped_into 'root' }
+      it { should be_mode 644 }
+    end
+  end
+
   describe file("/etc/init.d/php#{php_minor_version}-fpm") do
     it { should be_file }
     it { should be_owned_by 'root' }
