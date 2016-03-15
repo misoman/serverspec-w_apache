@@ -10,10 +10,6 @@ RSpec.shared_examples 'w_apache::php_ini::session' do
     its(:value) { should eq 'memcached' }
   end
 
-  describe php_config('session.save_path') do
-    its(:value) { should eq '127.0.0.1:11211' }
-  end
-
   describe php_config('session.use_cookies') do
     its(:value) { should eq 1 }
   end
