@@ -25,9 +25,14 @@ RSpec.shared_examples 'w_apache::blackfire' do
     it { should be_installed }
   end
 
-  %w( /etc/php5/fpm/conf.d/blackfire.ini /etc/blackfire/agent ).each do |file|
+  %W( /etc/php/#{php_minor_version}/mods-available/blackfire.ini /etc/blackfire/agent ).each do |file|
     describe file(file) do
       it { should be_file }
     end
+  end
+
+  describe file("/etc/php/#{php_minor_version}/fpm/conf.d/90-blackfire.ini") do
+    it { should be_symlink }
+    it { should be_linked_to "/etc/php/#{php_minor_version}/mods-available/blackfire.ini"}
   end
 end

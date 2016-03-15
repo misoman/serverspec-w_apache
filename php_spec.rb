@@ -2,72 +2,77 @@ require 'spec_helper'
 
 RSpec.shared_examples 'w_apache::php' do
 
+  describe command('php -v') do
+    its(:stdout) { should match /#{Regexp.quote(php_minor_version)}/ }
+  end
+
   unless `hostname`.include?('-source-') then
-    ['php5-fpm', 'php-pear', 'php5-dev', 'php5-mysql', 'php5-memcached', 'php5-gd', 'php5-pspell', 'php5-curl'].each do |package|
+
+    standard_packages = %w(bcmath bz2 cgi cli common curl dev enchant fpm gd gmp imap interbase intl ldap mbstring mcrypt mysql odbc opcache pgsql phpdbg pspell readline recode snmp soap sqlite3 sybase tidy xmlrpc xml zip).map {|package| "php#{php_minor_version}-#{package}"}
+    additional_packages = %w(amqp ast geoip gettext gmagick igbinary imagick mailparse memcached mongodb msgpack pear radius redis rrd smbclient ssh2 uploadprogress uuid yac zmq).map {|package| "php-#{package}"}
+
+    ( standard_packages + additional_packages ).each do |package|
       describe package("#{package}") do
         it { should be_installed }
       end
     end
   end
 
-  describe file('/etc/php5/fpm/pool.d/www.conf') do
-    it { should_not exist }
-  end
-
-  %w(maxlifetime php5-fpm-checkconf php5-fpm-reopenlogs sessionclean).each do |script|
-    describe file("/usr/lib/php5/#{script}") do
+  %W(php#{php_minor_version}-fpm-checkconf php#{php_minor_version}-fpm-reopenlogs php-helper php-maintscript-helper sessionclean).each do |script|
+    describe file("/usr/lib/php/#{script}") do
       it { should be_file }
       it { should be_owned_by 'root' }
       it { should be_grouped_into 'root' }
-      it { should be_mode 755 }
-      its(:content) { should match /\/etc\/php5\/fpm\/php-fpm.conf/ } if script.include?('php5-fpm')
+
+      if script.include?('php-') then
+        it { should be_mode 644 }
+      else
+        it { should be_mode 755 }
+      end
     end
   end
 
-  describe file('/etc/init.d/php5-fpm') do
+  describe file("/etc/init.d/php#{php_minor_version}-fpm") do
     it { should be_file }
     it { should be_owned_by 'root' }
     it { should be_grouped_into 'root' }
     it { should be_mode 755 }
   end
 
-  describe file('/etc/init/php5-fpm.conf') do
-    it { should be_file }
-    it { should be_owned_by 'root' }
-    it { should be_grouped_into 'root' }
-    it { should be_mode 644 }
-  end
-
-  describe file('/etc/php5/mods-available') do
+  describe file("/etc/php/#{php_minor_version}/mods-available") do
     it { should be_directory }
     it { should be_owned_by 'root' }
     it { should be_grouped_into 'root' }
     it { should be_mode 755 }
   end
 
-  describe file('/etc/php5/fpm/php-fpm.conf') do
+  describe file("/etc/php/#{php_minor_version}/fpm/php-fpm.conf") do
     it { should be_file }
     it { should be_owned_by 'root' }
     it { should be_grouped_into 'root' }
     it { should be_mode 644 }
-    its(:content) { should match /pid(\s)+=(\s)+\/var\/run\/php5-fpm.pid/ }
-    its(:content) { should match /error_log(\s)+=(\s)+\/var\/log\/php5-fpm\/fpm-master.log/ }
+    its(:content) { should match /pid(\s)+=(\s)+\/run\/php\/php#{Regexp.quote(php_minor_version)}-fpm.pid/ }
+    its(:content) { should match /error_log(\s)+=(\s)+\/var\/log\/php#{Regexp.quote(php_minor_version)}-fpm.log/ }
     its(:content) { should match /log_level(\s)+=(\s)+notice/ }
-    its(:content) { should match /emergency_restart_threshold(\s)+=(\s)+16/ }
-    its(:content) { should match /emergency_restart_interval(\s)+=(\s)+1h/ }
-    its(:content) { should match /process_control_timeout(\s)+=(\s)+30s/ }
+    its(:content) { should match /emergency_restart_threshold(\s)+=(\s)0/ }
+    its(:content) { should match /emergency_restart_interval(\s)+=(\s)0/ }
+    its(:content) { should match /process_control_timeout(\s)+=(\s)0/ }
     its(:content) { should match /daemonize(\s)+=(\s)+yes/ }
     its(:content) { should match /events.mechanism(\s)+=(\s)+epoll/ }
   end
 
-  describe file('/etc/php5/fpm/conf.d') do
+  describe file("/etc/php/#{php_minor_version}/fpm/conf.d") do
     it { should be_directory }
     it { should be_owned_by 'root' }
     it { should be_grouped_into 'root' }
     it { should be_mode 755 }
   end
 
-  describe file('/etc/php5/fpm/pool.d/php-fpm.conf') do
+  describe file("/etc/php/#{php_minor_version}/fpm/pool.d/www.conf") do
+    it { should_not exist }
+  end
+
+  describe file("/etc/php/#{php_minor_version}/fpm/pool.d/php-fpm.conf") do
     it { should be_file }
     it { should be_owned_by 'root' }
     it { should be_grouped_into 'root' }
@@ -91,48 +96,61 @@ RSpec.shared_examples 'w_apache::php' do
     its(:content) { should match /request_terminate_timeout(\s)+=(\s)+320/ }
     its(:content) { should match /chdir(\s)+=(\s)+\// }
     its(:content) { should match /security.limit_extensions(\s)+=(\s)+.php .htm .php3 .html .inc .tpl .cfg/ }
-    its(:content) { should match /php_value\[error_log\](\s)+=(\s)+\/var\/log\/php5-fpm\/php-fpm.log/ }
+    its(:content) { should match /php_value\[error_log\](\s)+=(\s)+\/var\/log\/php#{Regexp.quote(php_minor_version)}-fpm.log/ }
   end
 
-  describe file('/var/run/php5-fpm.sock') do
+  describe file("/var/run/php/php#{php_minor_version}-fpm.sock") do
     it { should be_socket }
     it { should be_owned_by 'root' }
     it { should be_grouped_into 'root' }
     it { should be_mode 666 }
   end
 
-  describe file('/etc/php5/fpm/php.ini') do
+  describe file("/etc/php/#{php_minor_version}/fpm/php.ini") do
     it { should be_file }
     it { should be_owned_by 'root' }
     it { should be_grouped_into 'root' }
     it { should be_mode 644 }
   end
 
-  describe file('/var/log/php5-fpm') do
-    it { should be_directory }
+  describe file("/var/log/php#{php_minor_version}-fpm.log") do
+    it { should be_file }
+    it { should be_owned_by 'root' }
+    it { should be_grouped_into 'root' }
+    it { should be_mode 600 }
+  end
+
+  describe file("/etc/logrotate.d/php#{php_minor_version}-fpm") do
+    it { should be_file }
+    it { should be_owned_by 'root' }
+    it { should be_grouped_into 'root' }
+    it { should be_mode 644 }
+    its(:content) { should match /rotate(\s)12/ }
+    its(:content) { should match /weekly/ }
+    its(:content) { should match /missingok/ }
+    its(:content) { should match /notifempty/ }
+    its(:content) { should match /compress/ }
+    its(:content) { should match /delaycompress/ }
+    its(:content) { should match /postrotate/ }
+    its(:content) { should match /\/usr\/lib\/php\/php#{Regexp.quote(php_minor_version)}-fpm-reopenlogs/}
+    its(:content) { should match /endscript/ }
+  end
+
+  describe file("/etc/init.d/php#{php_minor_version}-fpm") do
+    it { should be_file }
     it { should be_owned_by 'root' }
     it { should be_grouped_into 'root' }
     it { should be_mode 755 }
   end
 
-  describe file('/etc/logrotate.d/php5-fpm') do
+  describe file("/usr/sbin/php-fpm#{php_minor_version}") do
     it { should be_file }
     it { should be_owned_by 'root' }
     it { should be_grouped_into 'root' }
-    it { should be_mode 644 }
-    its(:content) { should match /rotate(\s)+4/ }
-    its(:content) { should match /weekly/ }
-    its(:content) { should match /copytruncate/ }
-    its(:content) { should match /missingok/ }
-    its(:content) { should match /notifempty/ }
-    its(:content) { should match /sharedscripts/ }
-    its(:content) { should match /delaycompress/ }
-    its(:content) { should match /postrotate/ }
-    its(:content) { should match /\/bin\/kill -SIGUSR1 `cat \/var\/run\/php5-fpm.pid 2>\/dev\/null` 2>\/dev\/null \|\| true/ }
-    its(:content) { should match /endscript/ }
+    it { should be_mode 755 }
   end
 
-  describe service('php5-fpm') do
+  describe service("php#{php_minor_version}-fpm") do
     it { should be_enabled }
     it { should be_running }
   end
