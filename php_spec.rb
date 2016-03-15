@@ -4,10 +4,11 @@ RSpec.shared_examples 'w_apache::php' do
 
   describe command('php -v') do
     its(:stdout) { should match /#{Regexp.quote(php_minor_version)}/ }
+    its(:stdout) { should match /with blackfire/}
   end
 
-  standard_packages = %w(bcmath bz2 cli common curl dev enchant fpm gd gmp imap interbase intl ldap mbstring mcrypt mysql odbc opcache pgsql phpdbg pspell readline recode snmp soap sqlite3 sybase tidy xmlrpc xml zip).map {|package| "php#{php_minor_version}-#{package}"}
-  additional_packages = %w(amqp ast geoip gettext gmagick igbinary imagick mailparse memcached mongodb msgpack pear radius redis rrd smbclient ssh2 uuid yac zmq).map {|package| "php-#{package}"}
+  standard_packages = %w(bcmath bz2 cli common curl dev enchant fpm gd gmp imap interbase intl ldap mbstring mcrypt mysql odbc opcache pgsql phpdbg pspell readline recode soap sqlite3 sybase tidy xmlrpc xml zip).map {|package| "php#{php_minor_version}-#{package}"}
+  additional_packages = %w(amqp geoip gettext gmagick igbinary imagick mailparse memcached mongodb msgpack pear radius redis rrd smbclient ssh2 uuid yac zmq).map {|package| "php-#{package}"}
 
   ( standard_packages + additional_packages ).each do |package|
     describe package("#{package}") do
@@ -15,19 +16,7 @@ RSpec.shared_examples 'w_apache::php' do
     end
   end
 
-  %w( cgi ).map {|package| "php#{php_minor_version}-#{package}"}.each do |package|
-    describe package("#{package}") do
-      it { should_not be_installed }
-    end
-  end
-
-  %w( uploadprogress ).map {|package| "php-#{package}"}.each do |package|
-    describe package("#{package}") do
-      it { should_not be_installed }
-    end
-  end
-
-  %w( libapache2-mod-php ).each do |package|
+  %W( php#{php_minor_version}-cgi php#{php_minor_version}-snmp php-apcu php-ast php-uploadprogress libapache2-mod-php ).each do |package|
     describe package("#{package}") do
       it { should_not be_installed }
     end
