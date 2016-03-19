@@ -7,7 +7,7 @@ RSpec.shared_examples 'w_apache::php' do
     its(:stdout) { should match /with blackfire/}
   end
 
-  standard_packages = %w(bcmath bz2 cli common curl dev enchant fpm gd gmp imap interbase intl ldap mbstring mcrypt mysql odbc opcache pgsql phpdbg pspell readline recode soap sqlite3 sybase tidy xmlrpc xml zip).map {|package| "php#{php_minor_version}-#{package}"}
+  standard_packages = %w(bz2 cli common curl dev enchant fpm gd gmp imap interbase intl ldap mbstring mcrypt mysql odbc opcache pgsql phpdbg pspell readline recode soap sqlite3 sybase tidy xmlrpc xml zip).map {|package| "php#{php_minor_version}-#{package}"}
   additional_packages = %w(amqp geoip gettext gmagick igbinary imagick mailparse memcached mongodb msgpack pear radius redis rrd smbclient ssh2 uuid yac zmq).map {|package| "php-#{package}"}
 
   ( standard_packages + additional_packages ).each do |package|
@@ -16,7 +16,7 @@ RSpec.shared_examples 'w_apache::php' do
     end
   end
 
-  %W( php#{php_minor_version}-cgi php#{php_minor_version}-snmp php-apcu php-ast php-uploadprogress libapache2-mod-php ).each do |package|
+  %W( php#{php_minor_version}-bcmath php#{php_minor_version}-cgi php#{php_minor_version}-snmp php-apcu php-ast php-uploadprogress libapache2-mod-php ).each do |package|
     describe package("#{package}") do
       it { should_not be_installed }
     end
@@ -36,12 +36,18 @@ RSpec.shared_examples 'w_apache::php' do
     end
   end
 
-  %w(amqp bcmath blackfire bz2 calendar ctype curl dom enchant exif fileinfo ftp gd geoip gettext gmagick gmp iconv igbinary imagick imap interbase intl json ldap mailparse mbstring mcrypt memcached mongodb msgpack mysqli mysqlnd newrelic odbc opcache pdo pdo_dblib pdo_firebird pdo_mysql pdo_odbc pdo_pgsql pdo_sqlite pgsql phar posix pspell radius readline recode redis rrd shmop simplexml smbclient soap sockets sqlite3 ssh2 sysvmsg sysvsem sysvshm tidy tokenizer uuid wddx xml xmlreader xmlrpc xmlwriter xsl yac zip zmq).each do |extension|
+  %w(amqp blackfire bz2 calendar ctype curl dom enchant exif fileinfo ftp gd geoip gettext gmagick gmp iconv igbinary imagick imap interbase intl json ldap mailparse mbstring mcrypt memcached mongodb msgpack mysqli mysqlnd newrelic odbc opcache pdo pdo_dblib pdo_firebird pdo_mysql pdo_odbc pdo_pgsql pdo_sqlite pgsql phar posix pspell radius readline recode redis rrd shmop simplexml smbclient soap sockets sqlite3 ssh2 sysvmsg sysvsem sysvshm tidy tokenizer uuid wddx xml xmlreader xmlrpc xmlwriter xsl yac zip zmq).each do |extension|
     describe file("/etc/php/#{php_minor_version}/mods-available/#{extension}.ini") do
       it { should be_file }
       it { should be_owned_by 'root' }
       it { should be_grouped_into 'root' }
       it { should be_mode 644 }
+    end
+  end
+
+  %w(bcmath snmp ast uploadprogress).each do |extension|
+    describe file("/etc/php/#{php_minor_version}/mods-available/#{extension}.ini") do
+      it { should_not exist }
     end
   end
 
