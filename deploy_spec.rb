@@ -43,4 +43,12 @@ RSpec.shared_examples 'w_apache::deploy' do
   describe command('cd /websites/examplewebsite.com/admin && git remote -v') do
     its(:stdout) { should contain('git.examplewebsite.com/admin.git') }
   end
+
+  describe command('cd /websites/multi-repo-vhost.com && git remote -v') do
+    its(:stdout) { should contain('https://git.examplewebsite.com/multi-repo-vhost.com-repo1.git') }
+  end
+
+  describe command('cd /websites/multi-repo-vhost.com/repo2 && git remote -v') do
+    its(:stdout) { should contain('https://git.examplewebsite.com/multi-repo-vhost.com-repo2.git') }
+  end
 end
