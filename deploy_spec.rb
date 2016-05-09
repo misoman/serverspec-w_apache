@@ -44,11 +44,22 @@ RSpec.shared_examples 'w_apache::deploy' do
     its(:stdout) { should contain('git.examplewebsite.com/admin.git') }
   end
 
-  describe command('cd /websites/multi-repo-vhost.com && git remote -v') do
+  describe command('cd /websites/multi-repo-vhost && git remote -v') do
     its(:stdout) { should contain('https://git.examplewebsite.com/multi-repo-vhost.com-repo1.git') }
   end
 
-  describe command('cd /websites/multi-repo-vhost.com/repo2 && git remote -v') do
+  describe command('cd /websites/multi-repo-vhost/repo2 && git remote -v') do
     its(:stdout) { should contain('https://git.examplewebsite.com/multi-repo-vhost.com-repo2.git') }
+  end
+
+  describe command('cd /websites/checkout-repo-vhost && git remote -v') do
+    its(:stdout) { should contain('https://github.com/haapp/example-app.git') }
+  end
+
+  describe file('/websites/checkout-repo-vhost/index.html') do
+    it { should be_file }
+    it { should be_owned_by 'www-data' }
+    it { should be_grouped_into 'www-data' }
+    its(:content) { should match /this is example app/ }
   end
 end
