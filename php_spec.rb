@@ -22,7 +22,7 @@ RSpec.shared_examples 'w_apache::php' do
     end
   end
 
-  %W(php#{php_minor_version}-fpm-checkconf php#{php_minor_version}-fpm-reopenlogs php-helper php-maintscript-helper sessionclean).each do |script|
+  %W(php#{php_minor_version}-fpm-reopenlogs php-helper php-maintscript-helper sessionclean).each do |script|
     describe file("/usr/lib/php/#{script}") do
       it { should be_file }
       it { should be_owned_by 'root' }
