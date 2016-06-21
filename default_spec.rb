@@ -29,6 +29,12 @@ RSpec.shared_examples 'w_apache::default' do
     its(:content) { should match /LogLevel error/ }
   end
 
+  describe file('/etc/apache2/ports.conf') do
+    its(:content) { should_not match /Listen \*\:81/ }
+    its(:content) { should match /Listen \*\:80/ }
+    its(:content) { should match /Listen \*\:443/ }
+  end
+
   describe port(80), :if => os[:family] == 'ubuntu' && os[:release] == '12.04' do
     it { should be_listening.with('tcp') }
   end
