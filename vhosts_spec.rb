@@ -17,6 +17,7 @@ RSpec.shared_examples 'w_apache::vhosts' do
 
 	 	describe file("/etc/apache2/sites-available/#{vhost['main_domain']}.conf") do
 	     it { should be_file }
+	     its(:content) { should match /VirtualHost \*:80/ }
 	     it { should contain('AllowOverride All').from("<Directory #{vhost['docroot']}>").to('</Directory>') }
 	     it { should contain("ServerName #{vhost['main_domain']}").before("DocumentRoot #{vhost['docroot']}") }
 	     it { should contain("ServerAlias #{vhost['aliases']}").after("ServerName #{vhost['main_domain']}") }
