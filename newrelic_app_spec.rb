@@ -6,7 +6,7 @@ RSpec.shared_examples 'w_apache::newrelic_app' do
     it { should be_executable }
   end
 
-  describe file('/etc/php/#{php_minor_version}/cli/conf.d/newrelic.ini') do
+  describe file('/etc/php/#{php_minor_version}/fpm/conf.d/newrelic.ini') do
     it { should_not exist }
   end
 end
