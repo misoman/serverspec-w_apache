@@ -255,4 +255,8 @@ RSpec.shared_examples 'w_apache::php' do
   describe php_config('pdo_mysql.cache_size') do
     its(:value) { should eq 2000 }
   end
+
+  describe php_config('disable_functions') do
+    its(:value) { should eq 'dl,posix_kill,posix_mkfifo,posix_setuid,proc_close,proc_open,proc_terminate,shell_exec,system,leak,posix_setpgid,posix_setsid,proc_get_status,proc_nice,show_source,virtual,proc_terminate,inject_code,define_syslog_variables,syslog,posix_uname' }
+  end
 end
