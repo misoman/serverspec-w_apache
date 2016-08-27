@@ -26,6 +26,7 @@ RSpec.shared_examples 'w_apache::ssl' do
       it { should contain("ServerName #{vhost['main_domain']}").before("DocumentRoot #{vhost['docroot']}") }
       it { should contain("ServerAlias #{vhost['aliases']}").after("ServerName #{vhost['main_domain']}") }
       it { should contain('DirectoryIndex index.html index.htm index.php') }
+      its(:content) { should match /LogLevel error/ }
     end
 
     describe file("/etc/apache2/sites-enabled/#{vhost['main_domain']}-ssl.conf") do
